@@ -16,6 +16,7 @@ The system assumes that:
 - correct replicas always reject invalid messages
 - an attacker cannot break the encryption used to sign the updates
 - signing keys from correct updates are not compromised
+- the only attack vector considered in our system is by sending (arbitrary, i.e. not restricted by quality or quantity) data to one or more peers.
 
 ## Potential threats
 
@@ -34,4 +35,25 @@ The [STRIDE model](https://en.wikipedia.org/wiki/STRIDE_%28security%29) is a mod
 
 ### Spoofing
 
-Spoofing is when someone is pretending to be someone else, breaching authenticity. In our system, encryption provides authenticity by binding an update to a key. An attacker can create arbitrary many keys but cannot craft a signature from a key it did not create.
+Spoofing is when someone is pretending to be someone else, breaching authenticity. In our system, encryption provides authenticity by binding an update to a key. An attacker can create arbitrary many keys but cannot craft a signature from a key it did not create. Thus Spoofing is excluded by assumption
+
+### Tampering
+
+Tampering is the modification of data on disk, network, memory or elsewhere. As all messages are signed, a modified message will not go unnoticed for its signature will not match the content. This is also based on the cryptographic primitives assumptions. An attacker could delete a complete message but the "previous message" field in a message makes sure this does not go unnoticed, and the eventual consistency assumption of the system implies that all messages will be retransmitted at some (arbitrary) point in time. This leaves us with 2 potential attack: 1) deleting a complete log and 2) deleting or modifying (making it incorrect) a message on all machines. The later would imply that the information is not available anywhere.
+
+### Repudiation
+
+Repudiation is the claim from a participant that it didn't do something, in our case that it didn't write a message (we do not consider the link between an author (the possessor and user of a key pair) and a physical person). This is excpected from byzantin authors and is part of our mechanism to expose them, as the cryptographic primitives make sure no one can forge nor repudiate a signature.
+
+### Information disclosure
+
+Information disclosure is the procurement of information by somebody not authorized to access it. In our system, no information is assumed to be secret, except the author's secret key, which confidentiality is an assumption. All other information are meant to be shared, preventing any information disclosure.
+
+### Denial of service
+
+Denial of service is the exhaustion of resources needed to provide the service. We assume in our system that the only attack vector is by sending data to peers. Thus a DoS attack on the correct replica's side could happen in 3 ways: 1) a technical failure of the process, arising when an attacker can reach and exploit a (software) bug, 2) a memory exhaustion and 3) a computation exhaustion.
+
+### Elevation of privilege
+
+Elevation of privilege arises when someone gains the ability to do something they are not authorized to do. Although this cannot be ruled out, the likelihood of such an attack being possible is low. Reasons for this include the lack of direct communication between replicas and the ease of implementation of a compartmentalisation isolating the receiving, storing and validating parts of the protocol.
+
