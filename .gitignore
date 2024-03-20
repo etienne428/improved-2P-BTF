@@ -1,0 +1,7 @@
+# Standard ignore for python projects
+.idea/*
+__pycache__/
+
+# ignore "data" folder and any file starting with "file_" as they are only test data
+*/data/*
+file_*
